@@ -53,6 +53,12 @@
     <Compile Include="DFSM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\STEIN.Automata\STEIN.Automata.csproj">
+      <Project>{59df904a-877f-44c2-9954-0bc19a659aff}</Project>
+      <Name>STEIN.Automata</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
