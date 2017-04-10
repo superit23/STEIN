@@ -8,7 +8,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace STEIN.MachineLearning.Classification.NeuralNetworks
 {
-    public interface ActivationFunction
+    public interface IActivationFunction
     {
         double Function(double x);
 

@@ -7,7 +7,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace STEIN.MachineLearning
 {
-    public class Sigmoid : Classification.NeuralNetworks.ActivationFunction
+    public class Sigmoid : Classification.NeuralNetworks.IActivationFunction
     {
         public Matrix<double> Derivative(Matrix<double> x)
         {

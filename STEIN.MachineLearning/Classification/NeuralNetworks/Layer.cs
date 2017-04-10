@@ -8,12 +8,12 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace STEIN.MachineLearning.Classification.NeuralNetworks
 {
-    public class Layer
+    public class Layer : INeuralComponent
     {
         public Matrix<double> Theta
         { get; set; }
 
-        public ActivationFunction AFunc
+        public IActivationFunction AFunc
         { get; set; }
 
         public Matrix<double> Computations
@@ -31,13 +31,13 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
         private bool isBiased = false;
 
 
-        public Layer(int numNeurons, int numInputs, ActivationFunction afunc, double lambda, double learningRate, bool useBias)
+        public Layer(int numNeurons, int numInputs, IActivationFunction afunc, double lambda, double learningRate, bool useBias)
         {
             AFunc = afunc;
             Lambda = lambda;
 
 
-            var tempTheta = DenseMatrix.CreateRandom(numNeurons, numInputs, new MathNet.Numerics.Distributions.Normal());
+            var tempTheta = DenseMatrix.CreateRandom(numNeurons, numInputs, new MathNet.Numerics.Distributions.ContinuousUniform());
 
             if(useBias)
             {
@@ -53,7 +53,7 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             LearningRate = learningRate;
         }
 
-        public Matrix<double> Compute(Matrix<double> x)
+        public virtual Matrix<double> Compute(Matrix<double> x)
         {
             //Input = x;
             Matrix<double> a = null;
@@ -154,10 +154,10 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
 
             var unreg_cost = (o_log - z_log) / vY.RowCount;
 
-            var nTheta = Theta.Clone();
-            var nTheta_R = nTheta;
+            //var nTheta = Theta.Clone();
+            //var nTheta_R = nTheta;
 
-            double c_reg = (Lambda * (nTheta_R.Transpose() * nTheta_R) / (2 * vY.RowCount))[0, 0];
+            double c_reg = (Lambda * (Theta.Transpose() * Theta) / (2 * vY.RowCount))[0, 0];
 
             return unreg_cost + c_reg;
         }

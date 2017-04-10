@@ -45,14 +45,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\LogisticRegression.cs" />
-    <Compile Include="Classification\NeuralNetworks\ActivationFunction.cs" />
+    <Compile Include="Classification\NeuralNetworks\IActivationFunction.cs" />
+    <Compile Include="Classification\NeuralNetworks\INeuralComponent.cs" />
     <Compile Include="Classification\NeuralNetworks\Layer.cs" />
     <Compile Include="Classification\NeuralNetworks\NeuralNetwork.cs" />
+    <Compile Include="Classification\NeuralNetworks\NoiseLayer.cs" />
+    <Compile Include="Classification\NeuralNetworks\SoftmaxLayer.cs" />
+    <Compile Include="ICostFunction.cs" />
+    <Compile Include="SupervisedLearning.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regression\LinearRegression.cs" />
     <Compile Include="Sigmoid.cs" />
+    <Compile Include="BackpropagationTrainer.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\STEIN\STEIN.csproj">
+      <Project>{3a1129d6-2759-4a56-8191-c60c2dcc4933}</Project>
+      <Name>STEIN</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
