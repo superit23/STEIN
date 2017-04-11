@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using STEIN.MachineLearning.Classification.NeuralNetworks.ActivationFunctions;
 
 namespace STEIN.MachineLearning.Classification
 {

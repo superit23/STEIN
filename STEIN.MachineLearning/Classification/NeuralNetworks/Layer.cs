@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using STEIN.MachineLearning.Classification.NeuralNetworks.ActivationFunctions;
 
 namespace STEIN.MachineLearning.Classification.NeuralNetworks
 {
@@ -20,6 +21,10 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
         { get; set; }
 
         public Matrix<double> Input
+        { get; set; }
+
+
+        public Vector<double> Thresholds
         { get; set; }
 
         public double Lambda
@@ -38,15 +43,18 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
 
 
             var tempTheta = DenseMatrix.CreateRandom(numNeurons, numInputs, new MathNet.Numerics.Distributions.ContinuousUniform());
+            var thresholds = DenseVector.CreateRandom(numNeurons, new MathNet.Numerics.Distributions.ContinuousUniform());
 
-            if(useBias)
+            if (useBias)
             {
                 isBiased = useBias;
                 Theta = DenseMatrix.Create(numNeurons, 1, 1.0).Append(tempTheta);
+                Thresholds = DenseVector.Create(numNeurons, 1).Add(thresholds - 1.0);
             }
             else
             {
                 Theta = tempTheta;
+                Thresholds = thresholds;
             }
             
 
@@ -69,7 +77,10 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
 
             Input = x;
 
-            var z = a.Multiply(Theta.Transpose());
+            var thresholdMatrix = DenseMatrix.Create(x.RowCount, Theta.RowCount, (row, col) => Thresholds[col]);
+            
+
+            var z = a.Multiply(Theta.Transpose()) + thresholdMatrix;
             Computations = AFunc.Function(z);
 
             return Computations;

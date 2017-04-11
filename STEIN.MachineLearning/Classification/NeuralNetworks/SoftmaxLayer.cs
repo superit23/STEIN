@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using STEIN.MachineLearning.Classification.NeuralNetworks.ActivationFunctions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

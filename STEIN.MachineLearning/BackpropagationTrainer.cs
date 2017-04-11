@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using STEIN.MachineLearning.Classification.NeuralNetworks;
 using MathNet.Numerics.LinearAlgebra.Double;
+using STEIN.MachineLearning.CostFunctions;
 
 namespace STEIN.MachineLearning
 {
@@ -24,6 +25,7 @@ namespace STEIN.MachineLearning
         public BackpropagationTrainer(NeuralNetwork network)
         {
             Network = network;
+            CostFunc = new SquaredError();
         }
 
         public override double Run(double[] input, double[] output)
@@ -40,6 +42,7 @@ namespace STEIN.MachineLearning
             var cost = CostFunc.Calculate(result, output);
 
             var layerErrors = new Vector<double>[Network.Layers.Count];
+            //var totalError = 0.0;
 
             // For each sample
             for (int rowIdx = 0; rowIdx < error.RowCount; rowIdx++)
@@ -63,11 +66,13 @@ namespace STEIN.MachineLearning
 
                     // Sum total error per neuron with respect the connections in the next layer
                     var sum = nextErrors * nextLayer.Theta;
-                    currErrors = sum * activationFunc.Derivative(currLayer.Computations);
+                    currErrors = sum * activationFunc.Derivative(currLayer.Computations).Transpose();
+                    //totalError += currErrors.Sum();
                 }
             }
 
-                throw new NotImplementedException();
+            //return totalError;
+            return cost;
         }
     }
 }

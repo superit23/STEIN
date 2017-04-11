@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace STEIN.MachineLearning.Classification.NeuralNetworks
+namespace STEIN.MachineLearning.Classification.NeuralNetworks.ActivationFunctions
 {
     public interface IActivationFunction
     {
