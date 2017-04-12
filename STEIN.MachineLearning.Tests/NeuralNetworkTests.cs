@@ -96,31 +96,13 @@ namespace STEIN.MachineLearning.Tests
             var nn = new NeuralNetwork(new int[] { 10, 10 }, new Sigmoid(), 0, 0.05, false);
             nn.Layers.Add(new Classification.NeuralNetworks.Layer(5, 10, new Sigmoid(), 0, 0.05, false));
 
-            //foreach(var layer in nn.Layers)
-            //{
-            //    for(var i = 0; i <  layer.Theta.RowCount; i++)
-            //    {
-            //        for(var j = 0; j < layer.Theta.ColumnCount; j++)
-            //        {
-            //            Console.Write(layer.Theta[i, j] + " ");
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //    Console.WriteLine();
-            //}
-
-            //testNN.Train(null, null);
             var y = new double[,] {
                 { 0,0,0,0,1 },
                 { 0,0,0,1,0 },
                 { 0,1,0,0,0 }
             };
 
-            //var y = new double[,] {
-            //    { 1,1,0,1,1,1,1,0,1,0 },
-            //    { 1,1,1,1,0,1,0,0,1,0 },
-            //    { 0,1,0,1,1,0,1,0,1,1 }
-            //};
+
 
             var x = new double[,] {
                 { 1,1,1,0,0,0,0,0,0,1 },
@@ -128,15 +110,11 @@ namespace STEIN.MachineLearning.Tests
                 { 0,0,0,0,0,0,1,1,1,1 }
             };
 
+            var backprop = new BackpropagationTrainer(nn);
             for (int i = 0; i < 20000; i++)
             {
-                nn.Train(x, y);
-
-                //if (i % 5 == 0)
-                //{
-                //    //Console.WriteLine(nn.Layers[nn.Layers.Count - 1].ComputeCost(nn.Compute(x), y));
-                //}
-
+                //nn.Train(x, y);
+                backprop.RunEpoch(x, y);
             }
 
             var output = nn.Compute(x);
@@ -145,7 +123,7 @@ namespace STEIN.MachineLearning.Tests
             {
                 for (int j = 0; j < 5; j++)
                 {
-                    Console.Write(output[i, j]);
+                    Console.Write(Math.Round(output[i, j], 3) + " ");
                     //Console.WriteLine(y[i, j] - output[i, j]);
                 }
                 Console.WriteLine();

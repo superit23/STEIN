@@ -49,6 +49,7 @@
     <Compile Include="Classification\NeuralNetworks\INeuralComponent.cs" />
     <Compile Include="Classification\NeuralNetworks\Layer.cs" />
     <Compile Include="Classification\NeuralNetworks\NeuralNetwork.cs" />
+    <Compile Include="Classification\NeuralNetworks\NeuralUpdateInfo.cs" />
     <Compile Include="Classification\NeuralNetworks\NoiseLayer.cs" />
     <Compile Include="Classification\NeuralNetworks\SoftmaxLayer.cs" />
     <Compile Include="CostFunctions\ICostFunction.cs" />

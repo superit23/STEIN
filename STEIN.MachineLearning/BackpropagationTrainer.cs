@@ -35,28 +35,44 @@ namespace STEIN.MachineLearning
 
         public override double RunEpoch(Matrix<double> input, Matrix<double> output)
         {
-            // Compute error and cost
-            var activationFunc = Network.Layers[0].AFunc;
+            // We calculate errors and updates for the network as a whole
+            // before modifying it to make it easy not to dirty the state
             var result = Network.Compute(input);
-            var error = (output - result).PointwiseMultiply(activationFunc.Derivative(output));
             var cost = CostFunc.Calculate(result, output);
+            var error = CalculateError(result, output);
+            var updates = CalculateUpdates(input, error);
+            UpdateNetwork(updates);
 
-            var layerErrors = new Vector<double>[Network.Layers.Count];
-            //var totalError = 0.0;
+
+            return cost;
+        }
+
+        private Matrix<double>[] CalculateError(Matrix<double> result, Matrix<double> output)
+        {
+            var numLayers = Network.Layers.Count;
+
+            // Compute error
+            var activationFunc = Network.Layers[numLayers - 1].AFunc;
+            var error = (output - result).PointwiseMultiply(activationFunc.Derivative(output));
+
+            //var layerErrors = new Vector<double>[numLayers];
+            var layerErrors = new Matrix<double>[numLayers];
 
             // For each sample
             for (int rowIdx = 0; rowIdx < error.RowCount; rowIdx++)
             {
-                for (var i = 0; i < Network.Layers.Count; i++)
+                for (var i = 0; i < numLayers; i++)
                 {
-                    layerErrors[i] = DenseVector.Create(Network.Layers[i].Theta.RowCount, 0);
+                    //layerErrors[i] = DenseVector.Create(Network.Layers[i].Theta.RowCount, 0);
+                    layerErrors[i] = DenseMatrix.Create(error.RowCount, Network.Layers[i].Theta.RowCount, 0);
                 }
 
-                // Set last layer error to output cost
-                layerErrors[Network.Layers.Count - 1] = error.EnumerateRows().ElementAt(rowIdx);
+                // Set last layer error to output error
+                layerErrors[numLayers - 1].SetRow(rowIdx, error.EnumerateRows().ElementAt(rowIdx));
+                //layerErrors[Network.Layers.Count - 1] = error.EnumerateRows().ElementAt(rowIdx);
 
                 // Get error per layer
-                for (int i = Network.Layers.Count - 2; i >= 0; i--)
+                for (int i = numLayers - 2; i >= 0; i--)
                 {
                     var currLayer = Network.Layers[i];
                     var nextLayer = Network.Layers[i + 1];
@@ -67,12 +83,53 @@ namespace STEIN.MachineLearning
                     // Sum total error per neuron with respect the connections in the next layer
                     var sum = nextErrors * nextLayer.Theta;
                     currErrors = sum * activationFunc.Derivative(currLayer.Computations).Transpose();
-                    //totalError += currErrors.Sum();
                 }
             }
 
-            //return totalError;
-            return cost;
+            return layerErrors;
+        }
+
+
+        private Dictionary<Layer, NeuralUpdateInfo> CalculateUpdates(Matrix<double> input, Matrix<double>[] error)
+        {
+            var numLayers = Network.Layers.Count;
+            var updateInfo = new Dictionary<Layer, NeuralUpdateInfo>();
+
+            var weightsUpdates = new Matrix<double>[numLayers];
+            var thresholdUpdates = new Vector<double>[numLayers];
+
+            var layerInput = input;
+
+            for (int i = 0; i < numLayers; i++)
+            {
+                var currLayer = Network.Layers[i];
+                var layerWeightsUpdates = weightsUpdates[i];
+                var layerThresholdUpdates = thresholdUpdates[i];
+                var errorMatrix = error[i];
+
+                //var errorMatrix = DenseMatrix.Create(layerInput.RowCount, errorVector.Count, (row, col) => errorVector[col]);
+                layerWeightsUpdates = errorMatrix.Transpose().Multiply(layerInput);
+                layerThresholdUpdates = errorMatrix.ColumnSums();
+                //layerThresholdUpdates = errorVector;
+
+                updateInfo.Add(currLayer, new NeuralUpdateInfo(layerWeightsUpdates, layerThresholdUpdates));
+
+                layerInput = Network.Layers[i].Computations;
+
+            }
+
+            return updateInfo;
+        }
+
+
+        private void UpdateNetwork(Dictionary<Layer, NeuralUpdateInfo> updateInfo)
+        {
+            for(var i = 0; i < Network.Layers.Count; i++)
+            {
+                var currLayer = Network.Layers[i];
+                currLayer.Theta += updateInfo[currLayer].Weights;
+                currLayer.Thresholds += updateInfo[currLayer].Thresholds;
+            }
         }
     }
 }

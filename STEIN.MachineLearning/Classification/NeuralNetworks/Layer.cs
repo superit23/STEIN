@@ -78,7 +78,6 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             Input = x;
 
             var thresholdMatrix = DenseMatrix.Create(x.RowCount, Theta.RowCount, (row, col) => Thresholds[col]);
-            
 
             var z = a.Multiply(Theta.Transpose()) + thresholdMatrix;
             Computations = AFunc.Function(z);
