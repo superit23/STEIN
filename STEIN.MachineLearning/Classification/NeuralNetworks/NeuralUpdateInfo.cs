@@ -15,10 +15,14 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
         public Vector<double> Thresholds
         { get; set; }
 
+        public int BatchSize
+        { get; set; }
+
         public NeuralUpdateInfo(Matrix<double> weights, Vector<double> thresholds)
         {
             Weights = weights;
             Thresholds = thresholds;
+            BatchSize = 1;
         }
     }
 }

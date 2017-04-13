@@ -13,6 +13,27 @@ namespace STEIN.MachineLearning.Tests
     [TestClass]
     public class NeuralNetworkTests
     {
+
+        private static void AssertNetworksEqual(NeuralNetwork nn, ActivationNetwork accordNetwork)
+        {
+            // Assert networks have same parameters (in case the matrices distribute data in nonintuitive way)
+            for (var i = 0; i < nn.Layers.Count; i++)
+            {
+                var accordNeurons = accordNetwork.Layers[i].Neurons;
+                for (var j = 0; j < accordNeurons.Count(); j++)
+                {
+                    //Assert.AreEqual(nn.Layers[i].Thresholds[j], (accordNeurons[j] as ActivationNeuron).Threshold);
+                    Assert.IsTrue(Math.Abs(nn.Layers[i].Thresholds[j] - (accordNeurons[j] as ActivationNeuron).Threshold) < 0.001);
+                    for (var k = 0; k < accordNeurons[j].Weights.Count(); k++)
+                    {
+                        //Assert.AreEqual(accordNeurons[j].Weights[k], nn.Layers[i].Theta[j, k]);
+                        Assert.IsTrue(Math.Abs(accordNeurons[j].Weights[k] - nn.Layers[i].Theta[j, k]) < 0.001);
+                    }
+                }
+            }
+        }
+
+
         [TestMethod]
         public void TestForwardPropogation()
         {
@@ -52,22 +73,11 @@ namespace STEIN.MachineLearning.Tests
                 nn.Layers[i].Thresholds = DenseVector.OfEnumerable(accordNetwork.Layers[i].Neurons.Select(neuron => (neuron as ActivationNeuron).Threshold));
             }
 
-            // Assert networks have same parameters (in case the matrices distribute data in nonintuitive way)
-            for (var i = 0; i < nn.Layers.Count; i++)
-            {
-                var accordNeurons = accordNetwork.Layers[i].Neurons;
-                for (var j = 0; j < accordNeurons.Count(); j++)
-                {
-                    Assert.AreEqual(nn.Layers[i].Thresholds[j], (accordNeurons[j] as ActivationNeuron).Threshold);
-                    for (var k = 0; k < accordNeurons[j].Weights.Count(); k++)
-                    {
-                        Assert.AreEqual(accordNeurons[j].Weights[k], nn.Layers[i].Theta[j, k]);
-                    }
-                }
-            }
+            AssertNetworksEqual(nn, accordNetwork);
 
             var backprop = new BackpropagationTrainer(nn);
             var teacher = new BackPropagationLearning(accordNetwork);
+            teacher.LearningRate = 0.05;
 
 
             // Assert outputs are equal
@@ -85,9 +95,14 @@ namespace STEIN.MachineLearning.Tests
             var steinError = backprop.RunEpoch(x, y);
             var accordError = teacher.RunEpoch(accordX, accordY);
 
-            Assert.IsTrue(steinError / 2 - accordError < 0.0001);
+            Assert.IsTrue(Math.Abs(steinError / 2 - accordError) < 0.0001);
+            //teacher.RunEpoch(accordX, accordY);
+            //backprop.RunEpoch(x, y);
+
+            //AssertNetworksEqual(nn, accordNetwork);
 
         }
+
 
         [TestMethod]
         public void NeuralNetwork()
@@ -116,14 +131,14 @@ namespace STEIN.MachineLearning.Tests
                 //nn.Train(x, y);
                 backprop.RunEpoch(x, y);
             }
-
+            //var output = nn.Compute(new double[,] {{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 }});
             var output = nn.Compute(x);
 
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 5; j++)
                 {
-                    Console.Write(Math.Round(output[i, j], 3) + " ");
+                    Console.Write(Math.Round(output[i, j], 1) + " ");
                     //Console.WriteLine(y[i, j] - output[i, j]);
                 }
                 Console.WriteLine();

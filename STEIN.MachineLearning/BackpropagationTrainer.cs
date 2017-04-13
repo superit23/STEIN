@@ -21,11 +21,19 @@ namespace STEIN.MachineLearning
         public ICostFunction CostFunc
         { get; set; }
 
+        public int BatchSize
+        { get; set; }
+
+        public double LearningRate
+        { get; set; }
+
 
         public BackpropagationTrainer(NeuralNetwork network)
         {
             Network = network;
             CostFunc = new SquaredError();
+            BatchSize = 50;
+            LearningRate = 0.05;
         }
 
         public override double Run(double[] input, double[] output)
@@ -35,16 +43,22 @@ namespace STEIN.MachineLearning
 
         public override double RunEpoch(Matrix<double> input, Matrix<double> output)
         {
-            // We calculate errors and updates for the network as a whole
-            // before modifying it to make it easy not to dirty the state
-            var result = Network.Compute(input);
-            var cost = CostFunc.Calculate(result, output);
-            var error = CalculateError(result, output);
-            var updates = CalculateUpdates(input, error);
-            UpdateNetwork(updates);
+            var totalCost = 0.0;
+            for (var i = 0; i < input.RowCount; i+= BatchSize)
+            {
+                var samples = input.SubMatrix(i * BatchSize, Math.Min(BatchSize, input.RowCount - i), 0, input.ColumnCount);
+
+                // We calculate errors and updates for the network as a whole
+                // before modifying it to make it easy not to dirty the state
+                var result = Network.Compute(input);
+                totalCost += CostFunc.Calculate(result, output);
+                var error = CalculateError(result, output);
+                var updates = CalculateUpdates(input, error);
+                UpdateNetwork(updates);
+            }
 
 
-            return cost;
+            return totalCost;
         }
 
         private Matrix<double>[] CalculateError(Matrix<double> result, Matrix<double> output)
@@ -58,14 +72,16 @@ namespace STEIN.MachineLearning
             //var layerErrors = new Vector<double>[numLayers];
             var layerErrors = new Matrix<double>[numLayers];
 
+            for (var i = 0; i < numLayers; i++)
+            {
+                //layerErrors[i] = DenseVector.Create(Network.Layers[i].Theta.RowCount, 0);
+                layerErrors[i] = DenseMatrix.Create(error.RowCount, Network.Layers[i].Theta.RowCount, 0);
+            }
+
             // For each sample
             for (int rowIdx = 0; rowIdx < error.RowCount; rowIdx++)
             {
-                for (var i = 0; i < numLayers; i++)
-                {
-                    //layerErrors[i] = DenseVector.Create(Network.Layers[i].Theta.RowCount, 0);
-                    layerErrors[i] = DenseMatrix.Create(error.RowCount, Network.Layers[i].Theta.RowCount, 0);
-                }
+
 
                 // Set last layer error to output error
                 layerErrors[numLayers - 1].SetRow(rowIdx, error.EnumerateRows().ElementAt(rowIdx));
@@ -77,12 +93,12 @@ namespace STEIN.MachineLearning
                     var currLayer = Network.Layers[i];
                     var nextLayer = Network.Layers[i + 1];
 
-                    var currErrors = layerErrors[i];
+                    //var currErrors = layerErrors[i];
                     var nextErrors = layerErrors[i + 1];
 
                     // Sum total error per neuron with respect the connections in the next layer
                     var sum = nextErrors * nextLayer.Theta;
-                    currErrors = sum * activationFunc.Derivative(currLayer.Computations).Transpose();
+                    layerErrors[i] = sum.PointwiseMultiply(activationFunc.Derivative(currLayer.Computations));
                 }
             }
 
@@ -112,7 +128,7 @@ namespace STEIN.MachineLearning
                 layerThresholdUpdates = errorMatrix.ColumnSums();
                 //layerThresholdUpdates = errorVector;
 
-                updateInfo.Add(currLayer, new NeuralUpdateInfo(layerWeightsUpdates, layerThresholdUpdates));
+                updateInfo.Add(currLayer, new NeuralUpdateInfo(layerWeightsUpdates, layerThresholdUpdates) { BatchSize = input.RowCount });
 
                 layerInput = Network.Layers[i].Computations;
 
@@ -127,8 +143,9 @@ namespace STEIN.MachineLearning
             for(var i = 0; i < Network.Layers.Count; i++)
             {
                 var currLayer = Network.Layers[i];
-                currLayer.Theta += updateInfo[currLayer].Weights;
-                currLayer.Thresholds += updateInfo[currLayer].Thresholds;
+                var currUpdate = updateInfo[currLayer];
+                currLayer.Theta += LearningRate * currUpdate.Weights / currUpdate.BatchSize;
+                currLayer.Thresholds += LearningRate * currUpdate.Thresholds / currUpdate.BatchSize;
             }
         }
     }
