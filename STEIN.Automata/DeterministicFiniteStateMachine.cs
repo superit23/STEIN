@@ -97,24 +97,15 @@ namespace STEIN.Automata
             return F.Contains(currentState);
         }
 
-        //public void Move(IEnumerable<TSymbol> input)
-        //{
-        //    foreach (var symbol in input)
-        //    {
-        //        var transition = Delta.Find(t => t.StartState.Equals(CurrentState) &&
-        //                                         t.Symbol.Equals(symbol));
-        //        if (transition == null)
-        //        {
-        //            throw new InvalidOperationException("No transitions for current state and symbol.");
-        //        }
-        //        CurrentState = transition.EndState;
-        //    }
-        //    if (!F.Contains(CurrentState))
-        //    {
-        //        throw new InvalidOperationException("Stopped in a state that is not final.");
-        //    }
+        /// <summary>
+        /// Returns an <see cref="IEnumerable{Transition{TState, TSymbol}}"/> of possible transitions from the current state.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Transition<TState, TSymbol>> GetPossibleTransitions()
+        {
+            return Delta.Where(t => t.StartState.Equals(CurrentState));
+        }
 
-        //}
 
         /// <summary>
         /// Makes a transition using the provided symbol.

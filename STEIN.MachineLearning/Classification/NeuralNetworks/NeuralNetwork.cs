@@ -48,30 +48,5 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
 
             return lastLayer;
         }
-
-
-        private void BackPropogate(Matrix<double> a, Matrix<double> y)
-        {
-            var lastLayer = y - a;
-
-            for (int i = Layers.Count - 1; i > -1; i--)
-            {
-                lastLayer = Layers[i].BackPropogate(lastLayer);
-            }
-        }
-
-
-        public void Train(double[,] x, double[,] y)
-        {
-            Train(DenseMatrix.OfArray(x), DenseMatrix.OfArray(y));
-        }
-
-
-        public void Train(Matrix<double> x, Matrix<double> y)
-        {
-            BackPropogate(Compute(x), y);
-        }
-
-
-        }
+    }
 }

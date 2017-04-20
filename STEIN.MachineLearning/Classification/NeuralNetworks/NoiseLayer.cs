@@ -21,6 +21,7 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             set
             {
                 _minRand = value;
+                diff = _maxRand - _minRand;
             }
         }
 
@@ -35,23 +36,26 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             set
             {
                 _maxRand = value;
+                diff = _maxRand - _minRand;
             }
         }
 
+        private int diff = 0;
         private Random random = new Random();
         public NoiseLayer(int minRand, int maxRand, int numNeurons, int numInputs, IActivationFunction afunc, double lambda, double learningRate, bool useBias) : base(numNeurons, numInputs, afunc, lambda, learningRate, useBias)
         {
-            MinRand = minRand;
+            // Call setter on MaxRand to compute diff
+            _minRand = minRand;
             MaxRand = maxRand;
         }
 
         public override Matrix<double> Compute(Matrix<double> x)
         {
-            for(var j = 0; j < x.ColumnCount; j++)
+            for(var i = 0; i < x.RowCount; i++)
             {
-                for (var i = 0; i < x.ColumnCount; i++)
+                for (var j = 0; j < x.ColumnCount; j++)
                 {
-                    x[i, j] += random.NextDouble() * MathFunctions.GenerateInt(_minRand, _maxRand);
+                    x[i, j] += random.NextDouble() * MathFunctions.GenerateInt(0, diff) + _minRand;
                 }
             }
             return x;

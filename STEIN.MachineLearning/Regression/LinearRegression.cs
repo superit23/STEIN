@@ -70,20 +70,19 @@ namespace STEIN.MachineLearning.Regression
         /// <param name="y"></param>
         public void Train(double[,] inputs, double[] y)
         {
-            var X = (Matrix<double>)DenseMatrix.OfArray(inputs);
+            var x = (Matrix<double>)DenseMatrix.OfArray(inputs);
 
             if (isBiased)
             {
-                X = DenseMatrix.Create(X.RowCount, 1, 1.0).Append(X);
+                x = DenseMatrix.Create(x.RowCount, 1, 1.0).Append(x);
             }
 
-            
 
             double[] hypotheses = Compute(inputs);
-            var vY = DenseVector.OfArray(y);
-            var error = hypotheses - vY;
+            var vectorY = DenseVector.OfArray(y);
+            var error = hypotheses - vectorY;
 
-            Vector<double> gradient = LearningRate * (X.Transpose() * error) / X.RowCount;
+            Vector<double> gradient = LearningRate * (x.Transpose() * error) / x.RowCount;
 
             Theta -= (DenseVector)gradient;
 

@@ -95,7 +95,7 @@ namespace STEIN.MachineLearning.Tests
             var steinError = backprop.RunEpoch(x, y);
             var accordError = teacher.RunEpoch(accordX, accordY);
 
-            Assert.IsTrue(Math.Abs(steinError / 2 - accordError) < 0.0001);
+            Assert.IsTrue(Math.Abs(steinError - accordError) < 0.0001);
             //teacher.RunEpoch(accordX, accordY);
             //backprop.RunEpoch(x, y);
 
@@ -107,17 +107,13 @@ namespace STEIN.MachineLearning.Tests
         [TestMethod]
         public void NeuralNetwork()
         {
-            //var nn = new NeuralNetwork(new int[] { 10, 10, 5 }, new Sigmoid(), 0, 0.05, false);
-            var nn = new NeuralNetwork(new int[] { 10, 10 }, new Sigmoid(), 0, 0.05, false);
-            nn.Layers.Add(new Classification.NeuralNetworks.Layer(5, 10, new Sigmoid(), 0, 0.05, false));
+            var nn = new NeuralNetwork(new int[] { 10, 10, 5 }, new Sigmoid(), 0, 0.05, false);
 
             var y = new double[,] {
                 { 0,0,0,0,1 },
                 { 0,0,0,1,0 },
                 { 0,1,0,0,0 }
             };
-
-
 
             var x = new double[,] {
                 { 1,1,1,0,0,0,0,0,0,1 },
@@ -128,10 +124,9 @@ namespace STEIN.MachineLearning.Tests
             var backprop = new BackpropagationTrainer(nn);
             for (int i = 0; i < 20000; i++)
             {
-                //nn.Train(x, y);
                 backprop.RunEpoch(x, y);
             }
-            //var output = nn.Compute(new double[,] {{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 }});
+
             var output = nn.Compute(x);
 
             for (int i = 0; i < 3; i++)
@@ -139,7 +134,6 @@ namespace STEIN.MachineLearning.Tests
                 for (int j = 0; j < 5; j++)
                 {
                     Console.Write(Math.Round(output[i, j], 1) + " ");
-                    //Console.WriteLine(y[i, j] - output[i, j]);
                 }
                 Console.WriteLine();
 

@@ -7,11 +7,12 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace STEIN.MachineLearning.CostFunctions
 {
-    public class SquaredError : ICostFunction
+    public class MultinomialCrossEntropy : ICostFunction
     {
         public double Calculate(Matrix<double> actual, Matrix<double> expected)
         {
-            return (actual - expected).PointwisePower(2).RowSums().Sum() / 2;
+            return (expected * actual.PointwiseLog().Transpose())[0, 0] / -actual.RowCount;
+
         }
     }
 }

@@ -11,7 +11,7 @@ namespace STEIN.MachineLearning.Tests
         [TestMethod]
         public void LogisticRegression()
         {
-            var lg = new LogisticRegression(5, 0.0005);
+            var lg = new LogisticRegression(5, 0.05);
 
             var x = new double[,] {
                 { 0,1,0,0,1 },
@@ -36,7 +36,13 @@ namespace STEIN.MachineLearning.Tests
             }
 
             var output = lg.Compute(x);
+            for (var i = 0; i < output.Length; i++)
+            {
+                //Console.WriteLine(val);
+                Assert.AreEqual(y[i], Math.Round(output[i], 1));
+            }
 
+            
         }
     }
 }

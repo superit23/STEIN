@@ -13,9 +13,9 @@ namespace STEIN.MachineLearning.Tests
         {
             var numTraining = 100;
             var numTheta = 1;
-            var trainIter = 1000;
+            var trainIter = 100;
 
-            var linReg = new LinearRegression(numTheta, 0.0005, true);
+            var linReg = new LinearRegression(numTheta, 0.0005, false);
 
             var training = new double[numTraining, numTheta];
             var y = new double[numTraining];
@@ -49,8 +49,8 @@ namespace STEIN.MachineLearning.Tests
             }
 
             var valError = (m * 3) - linReg.Compute(validation)[0];
-            Console.WriteLine(valError);
-            //Assert.IsTrue(valError < 0.0000001);
+            //Console.WriteLine(valError);
+            Assert.IsTrue(valError < 0.0000001);
         }
 
 

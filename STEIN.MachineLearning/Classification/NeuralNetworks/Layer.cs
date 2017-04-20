@@ -11,6 +11,9 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
 {
     public class Layer : INeuralComponent
     {
+        /// <summary>
+        /// Weights of the connections between the neurons if this layer and the next.
+        /// </summary>
         public Matrix<double> Theta
         { get; set; }
 
@@ -28,9 +31,6 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
         { get; set; }
 
         public double Lambda
-        { get; set; }
-
-        public double LearningRate
         { get; set; }
 
         private bool isBiased = false;
@@ -58,7 +58,7 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             }
             
 
-            LearningRate = learningRate;
+            //LearningRate = learningRate;
         }
 
         public virtual Matrix<double> Compute(Matrix<double> x)
@@ -102,59 +102,50 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
         //    return delta;
         //}
 
-        public Matrix<double> BackPropogate(Matrix<double> delta)
-        {
+        //public Matrix<double> BackPropogate(Matrix<double> delta)
+        //{
             
-            Matrix<double> thetaNoBias = null;
-            if (isBiased)
-            {
-                thetaNoBias = Theta.RemoveColumn(0);
-            }
-            else
-            {
-                thetaNoBias = Theta;
-            }
+        //    Matrix<double> thetaNoBias = null;
+        //    if (isBiased)
+        //    {
+        //        thetaNoBias = Theta.RemoveColumn(0);
+        //    }
+        //    else
+        //    {
+        //        thetaNoBias = Theta;
+        //    }
 
-            // Calculate Delta
-            //var delta = y * Theta;
-            var l_delta = (delta * thetaNoBias).PointwiseMultiply(AFunc.Derivative(Input));
+        //    // Calculate Delta
+        //    //var delta = y * Theta;
+        //    var l_delta = (delta * thetaNoBias).PointwiseMultiply(AFunc.Derivative(Input));
 
-            // Calculate the regularized gradient
-            var gradient = Computations.Transpose() * l_delta;
+        //    // Calculate the regularized gradient
+        //    var gradient = Computations.Transpose() * l_delta;
             
-            //if(isBiased)
-            //{
-            //    gradient = gradient.RemoveColumn(0);
-            //}
+        //    //if(isBiased)
+        //    //{
+        //    //    gradient = gradient.RemoveColumn(0);
+        //    //}
             
-            if(isBiased)
-            {
-                thetaNoBias = DenseMatrix.Create(Theta.RowCount, 1, 0).Append(thetaNoBias);
-                gradient = DenseMatrix.Create(Theta.RowCount, 1, 0).Append(gradient);
-            }
+        //    if(isBiased)
+        //    {
+        //        thetaNoBias = DenseMatrix.Create(Theta.RowCount, 1, 0).Append(thetaNoBias);
+        //        gradient = DenseMatrix.Create(Theta.RowCount, 1, 0).Append(gradient);
+        //    }
 
-            gradient = gradient.Divide(Input.RowCount);
-            gradient = LearningRate * (gradient + thetaNoBias.Multiply(Lambda / Input.RowCount));
+        //    gradient = gradient.Divide(Input.RowCount);
+        //    gradient = LearningRate * (gradient + thetaNoBias.Multiply(Lambda / Input.RowCount));
 
-            Theta += gradient;
+        //    Theta += gradient;
 
-            return l_delta;
-        }
+        //    return l_delta;
+        //}
 
         /// <summary>
         /// Computes the logarithmic cost of the error between the given parameters.
         /// </summary>
         public double ComputeCost(double[,] h, double[,] y)
         {
-            //var nY = new double[y.GetLength(0), y.GetLength(1)];
-
-            //for(var i = 0; i < y.GetLength(0); i++)
-            //{
-            //    for(var j = 0; j < y.GetLength(1); i++)
-            //    {
-            //        nY[i, j] = y[i, j];
-            //    }
-            //}
 
             var vY = DenseMatrix.OfArray(y);
             var vH = DenseMatrix.OfArray(h);
@@ -163,9 +154,6 @@ namespace STEIN.MachineLearning.Classification.NeuralNetworks
             double z_log = ((1 - vY) * ((1 - vH).PointwiseLog().Transpose()))[0, 0];
 
             var unreg_cost = (o_log - z_log) / vY.RowCount;
-
-            //var nTheta = Theta.Clone();
-            //var nTheta_R = nTheta;
 
             double c_reg = (Lambda * (Theta.Transpose() * Theta) / (2 * vY.RowCount))[0, 0];
 

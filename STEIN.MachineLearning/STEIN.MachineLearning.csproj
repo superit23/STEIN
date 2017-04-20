@@ -53,7 +53,9 @@
     <Compile Include="Classification\NeuralNetworks\NoiseLayer.cs" />
     <Compile Include="Classification\NeuralNetworks\SoftmaxLayer.cs" />
     <Compile Include="CostFunctions\ICostFunction.cs" />
+    <Compile Include="CostFunctions\MultinomialCrossEntropy.cs" />
     <Compile Include="CostFunctions\SquaredError.cs" />
+    <Compile Include="QLearning.cs" />
     <Compile Include="SupervisedLearning.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regression\LinearRegression.cs" />
@@ -61,6 +63,10 @@
     <Compile Include="BackpropagationTrainer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\STEIN.Automata\STEIN.Automata.csproj">
+      <Project>{59df904a-877f-44c2-9954-0bc19a659aff}</Project>
+      <Name>STEIN.Automata</Name>
+    </ProjectReference>
     <ProjectReference Include="..\STEIN\STEIN.csproj">
       <Project>{3a1129d6-2759-4a56-8191-c60c2dcc4933}</Project>
       <Name>STEIN</Name>
